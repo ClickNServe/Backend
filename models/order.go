@@ -14,4 +14,5 @@ type Order struct {
 	CheckOut		time.Time				`json:"check_out"`
 	OrderTime		time.Time				`json:"order_time"`
 	TotalCharge		float64					`json:"total_charge"`
+	IsApprove		bool					`json:"is_approve"`
 }

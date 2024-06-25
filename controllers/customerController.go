@@ -15,3 +15,8 @@ func AddToWishlist(c *fiber.Ctx) error {
 	id := c.Params("id")
 	return c.Status(fiber.StatusOK).SendString("Successfully add to wishlist room id : " + id)
 }
+
+func DropRoomWishlist(c *fiber.Ctx) error {
+	id := c.Params("id")
+	return c.Status(fiber.StatusOK).SendString("Successfully drop room wishlist id : " + id)
+}

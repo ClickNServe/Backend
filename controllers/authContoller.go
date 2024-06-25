@@ -23,7 +23,7 @@ func GoogleRedirectEndpoint(c *fiber.Ctx) error {
 
 	token, err := oauth.GoogleOAuthConfig().Exchange(context.Background(), code)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to exhange token: " + err.Error())
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to exchange token: " + err.Error())
 	}
 
 	client := oauth.GoogleOAuthConfig().Client(context.Background(), token)

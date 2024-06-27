@@ -24,3 +24,7 @@ func ApproveCustomerReservation(c *fiber.Ctx) error {
 func RejectCustomerReservation(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).SendString("Successfully reject customer reservation!")
 }
+
+func HandleCustomerCancelation(c *fiber.Ctx) error {
+	return c.Status(fiber.StatusOK).SendString("Sucessfully handled customer cancelation")
+}

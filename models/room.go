@@ -3,7 +3,7 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Room struct {
-	RoomID			primitive.ObjectID 		`bson:"_id,omitempty"`
+	RoomID			primitive.ObjectID 		`json:"id" bson:"_id,omitempty"`
 	RoomNumber		int 					`json:"room_number"`
 	Description		string					`json:"description"`
 	Floor			int						`json:"floor"`

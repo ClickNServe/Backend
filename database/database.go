@@ -2,51 +2,50 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"time"
+	"os"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-	Client		*mongo.Client
-	Database	*mongo.Database
-)
+var client *mongo.Client
 
-func ConnectDatabase(uri, docName string) {
-	clientOptions := options.Client().ApplyURI(uri)
-
-	client, err := mongo.NewClient(clientOptions)
+func ConnectDatabase(docName string) *mongo.Collection  {
+	// check if there are any error, if yes, it will return not nil, if it not, it will return nil
+	err := godotenv.Load(".env") 
 	if err != nil {
-		log.Fatalf("Failed to create new mongoDB client: %v", err)
+		log.Fatalf("Error loading .env file: %s", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	MONGO_URI := os.Getenv("MONGO_URI")
 
-	err = client.Connect(ctx)
+	clientOption := options.Client().ApplyURI(MONGO_URI)
+	client, err = mongo.Connect(context.Background(), clientOption)
 	if err != nil {
-		log.Fatalf("Failed to connect to MongoDB: %v", err)
+		log.Fatalf("Error while connect to MongoDB: %s", err)
 	}
 
-	err = client.Ping(ctx, nil)
+	err = client.Ping(context.Background(), nil)
 	if err != nil {
-		log.Fatalf("Failed to ping MongoDB: %v", err)
+		log.Fatalf("Error while ping to MongoDB: %s", err)
 	}
 
-	fmt.Println("Connected to MongoDB! ")
-	Client = client
-	Database = client.Database(docName)
+	collection := client.Database("ClickNServe").Collection(docName)
+
+	return collection
 }
 
 func DisconnectDatabase() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	err := Client.Disconnect(ctx)
-	if err != nil {
-		log.Fatalf("Failed to disconnect from MongoDB: %v", err)
+	if client == nil {
+		log.Fatalf("MongoDB is not initialized")
 	}
+
+	err := client.Disconnect(context.Background())
+	if err != nil {
+		log.Fatalf("Error while disconnecting from MongoDB: %s", err)
+	}
+
+	log.Println("Successfully disconnect from MongoDB")
 }

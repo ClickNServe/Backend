@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/database"
 	"backend/routes"
 	"log"
 
@@ -9,6 +10,9 @@ import (
 
 func main() {
 	app := fiber.New()
+
+	database.ConnectDatabase()
+	defer database.DisconnectDatabase()
 
 	routes.SetUp(app)
 

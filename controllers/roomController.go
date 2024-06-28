@@ -4,7 +4,6 @@ import (
 	"backend/database"
 	"backend/models"
 	"context"
-	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,19 +18,19 @@ func GetAllRoom(c* fiber.Ctx) error {
 
 	var rooms []models.Room
 
-	collection := database.ConnectDatabase("rooms")
-	defer database.DisconnectDatabase()
+	collection := database.GetDatabase().Collection("rooms")
 
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
-		log.Fatalf("Error while find id: %v", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while find ID"})
 	}
 	defer cursor.Close(ctx)
 
 	err = cursor.All(ctx, &rooms)
 	if err != nil {
-		log.Fatalf("Error while decode room: %v", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while decode room"})
 	}
+
 	return c.Status(fiber.StatusOK).JSON(rooms)
 }
 
@@ -39,21 +38,20 @@ func GetAllAvailableRoom(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	collection := database.ConnectDatabase("rooms")
-	defer database.DisconnectDatabase()
+	collection := database.GetDatabase().Collection("rooms")
 
 	filter := bson.M{"availability":true}
 
 	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
-		log.Fatalf("Erorr while filtering room %s", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while filtering room"})
 	}
 	defer cursor.Close(ctx)
 
 	var rooms []models.Room
 	err = cursor.All(ctx, &rooms)
 	if err != nil {
-		log.Fatalf("Error while decode available room data")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while decode room"})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(rooms)
@@ -67,17 +65,16 @@ func GetRoomDetail(c *fiber.Ctx) error {
 
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		log.Fatalf("Error invalid id format")
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid format id"})
 	}
 
 	var room models.Room
 
-	collection := database.ConnectDatabase("rooms")
-	defer database.DisconnectDatabase()
+	collection := database.GetDatabase().Collection("rooms")
 
 	err = collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&room)
 	if err != nil {
-		log.Fatalf("Error while decode object room: %s", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while decode room"})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(room)

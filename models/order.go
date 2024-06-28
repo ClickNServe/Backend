@@ -8,7 +8,7 @@ import (
 
 type Order struct {
 	OrderID			primitive.ObjectID		`json:"id" bson:"_id,omitempty"`
-	RoomID			primitive.ObjectID		`json:"room_id" bson:"room_id,omitempty"`
+	RoomID			[]Room					`json:"room_id" bson:"room_id,omitempty"`
 	UserEmail		string					`json:"email"`
 	CheckIn			time.Time				`json:"check_in"`
 	CheckOut		time.Time				`json:"check_out"`

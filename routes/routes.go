@@ -18,7 +18,7 @@ func SetUp(app *fiber.App) {
 	app.Get("/api/room_detail/:id", controllers.GetRoomDetail)
 
 	// customer route
-	app.Post("/api/reserve_room", controllers.ReserveRoom)
+	app.Post("/api/reserve_room/:id", controllers.ReserveRoom)
 	app.Patch("/api/cancel_reservation/:id", controllers.CancelReservation)
 	app.Post("/api/add_to_wishlist/:id", controllers.AddToWishlist)
 	app.Delete("/api/delete_room_wishlist/:id", controllers.DropRoomWishlist)

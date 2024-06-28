@@ -22,7 +22,8 @@ func ReserveRoom(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing order data"})
 	}
 
-	roomID, err := primitive.ObjectIDFromHex(order.RoomID.Hex())
+	id := c.Params("id")
+	roomID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid id format"})
 	}
@@ -37,12 +38,10 @@ func ReserveRoom(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing check out time"})
 	}
 
-	order.RoomID = roomID
+	order.RoomID = append(order.RoomID, roomID)
 	order.CheckIn = checkIn
 	order.CheckOut = checkOut
 	order.OrderTime = time.Now()
-	order.IsApproved = false
-	order.IsCanceled = false
 		
 	collection := database.GetDatabase().Collection("orders")
 

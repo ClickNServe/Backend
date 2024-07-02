@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/errors"
 	"backend/models"
 	"context"
 	"time"
@@ -19,14 +20,13 @@ func GetAllBed(c *fiber.Ctx) error {
 
 	cursor, err := collection.Find(ctx, &beds)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while find ID"})
+		return errors.GetError(c, "Error while find ID")
 	}
 	defer cursor.Close(ctx)
 
 	err = cursor.All(ctx, &beds)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while decoding data"})
-	}
+		return errors.GetError(c, "Error while decoding data")	}
 
 	return c.Status(fiber.StatusOK).JSON(beds)
 }

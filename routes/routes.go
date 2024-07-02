@@ -17,9 +17,17 @@ func SetUp(app *fiber.App) {
 	app.Get("/api/available_rooms", controllers.GetAllAvailableRoom)
 	app.Get("/api/room_detail/:id", controllers.GetRoomDetail)
 
+	// bed route
+	app.Get("/api/all_beds", controllers.GetAllBed)
+
+	// facility route
+	app.Get("/api/all_facilities", controllers.GetAllFacilities)
+
+	// wishlist route
+	app.Get("/api/all_wishlist", controllers.GetAllWishlist)
+
 	// customer route
 	app.Post("/api/reserve_room/:id", controllers.ReserveRoom)
-	app.Patch("/api/cancel_reservation/:id", controllers.CancelReservation)
 	app.Post("/api/add_to_wishlist/:id", controllers.AddToWishlist)
 	app.Delete("/api/delete_room_wishlist/:id", controllers.DropRoomWishlist)
 
@@ -29,6 +37,5 @@ func SetUp(app *fiber.App) {
 	app.Delete("/api/delete_room/:id", controllers.DeleteRoom)
 	app.Post("/api/approve_reservation/:id", controllers.ApproveCustomerReservation)
 	app.Patch("/api/reject_reservation/:id", controllers.RejectCustomerReservation)
-	app.Patch("/api/handle_cancelation/:id", controllers.HandleCustomerCancelation)
-
+	
 }

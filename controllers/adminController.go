@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/errors"
 	"backend/models"
 	"context"
 	"time"
@@ -18,25 +19,73 @@ func CreateNewFacility(c *fiber.Ctx) error {
 	var facility models.Facility
 	err := c.BodyParser(&facility)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing data"})
+		return errors.GetError(c, "Error while parsing data")
 	}
 
 	collection := database.GetDatabase().Collection("facilities")
 
 	result, err := collection.InsertOne(ctx, facility)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while insert new facility"})
+		return errors.GetError(c, "Error while insert new data")
 	}
 
-	return c.Status(fiber.StatusBadRequest).JSON(result)
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func UpdateFacility(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	id := c.Params("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.GetError(c, "Invalid format ID")
+	}
+
+	var newFacility models.Facility
+	err = c.BodyParser(&newFacility)
+	if err != nil {
+		return errors.GetError(c, "Error while parsing data")
+	}
+
+	collection := database.GetDatabase().Collection("facilities")
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{
+		"$set": bson.M{
+			"facility_name": newFacility.FacilityName,
+			"price": newFacility.Price,
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return errors.GetError(c, "Error while updating data")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func DeleteFacility(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	id := c.Params("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.GetError(c, "Invalid format ID")
+	}
+
+	collection := database.GetDatabase().Collection("facilities")
+
+	filter := bson.M{"_id": objectId}
+
+	result, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return errors.GetError(c, "Error while deleting data")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func CreateNewBed(c *fiber.Ctx) error {
@@ -46,26 +95,73 @@ func CreateNewBed(c *fiber.Ctx) error {
 	var bed models.Bed
 	err := c.BodyParser(&bed)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing data"})
+		return errors.GetError(c, "Error while parsing data")
 	}
 
 	collection := database.GetDatabase().Collection("beds")
 
 	result, err := collection.InsertOne(ctx, bed)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while insert new data"})
+		return errors.GetError(c, "Error while insert new data")
 	}
 
-	return c.Status(fiber.StatusBadRequest).JSON(result)
-
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func UpdateBed(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	id := c.Params("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.GetError(c, "Invalid format ID")
+	}
+
+	var bed models.Bed
+	err = c.BodyParser(&bed)
+	if err != nil {
+		return errors.GetError(c, "Error while parsing data")
+	}
+
+	collection := database.GetDatabase().Collection("beds")
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{
+		"$set": bson.M{
+			"bed_type": bed.BedType,
+			"price": bed.Price,
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return errors.GetError(c, "Error while updating data")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func DeleteBed(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	id := c.Params("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.GetError(c, "Invalid format ID")
+	}
+
+	collection := database.GetDatabase().Collection("beds")
+
+	filter := bson.M{"_id": objectId}
+	
+	result, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return errors.GetError(c, "Error while deleting data")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func CreateNewRoom(c *fiber.Ctx) error {
@@ -75,22 +171,58 @@ func CreateNewRoom(c *fiber.Ctx) error {
 	var room models.Room
 	err := c.BodyParser(&room)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Eror while parsing data"})
+		return errors.GetError(c, "Error while parsing data")
 	}
 
 	collection := database.GetDatabase().Collection("rooms")
 
 	result, err := collection.InsertOne(ctx, room)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while insert new room"})
+		return errors.GetError(c, "Error while insert new data")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func UpdateRoom(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	id := c.Params("id")
-	return c.Status(fiber.StatusOK).SendString("Successfully update room number " + id + "!")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.GetError(c, "Error while parsing data")
+	}
+
+	var room models.Room
+	err = c.BodyParser(&room)
+	if err != nil {
+		return errors.GetError(c, "Error while parsing data")
+	}
+
+	collection := database.GetDatabase().Collection("rooms")
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{
+		"$set": bson.M{
+			"bed_id": room.BedID,
+			"facility_id": room.FacilityID,
+			"picture": room.Picture,
+			"room_number": room.RoomNumber,
+			"description": room.Description,
+			"floor": room.Floor,
+			"price_per_night": room.PricePerNight,
+			"availability": room.Availability,
+			"size_area": room.SizeArea,
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return errors.GetError(c, "Error while updating data")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func DeleteRoom(c *fiber.Ctx) error {
@@ -100,30 +232,71 @@ func DeleteRoom(c *fiber.Ctx) error {
 	id := c.Params("id")
 	objectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid format ID"})
+		return errors.GetError(c, "Error while parsing data")
 	}
 
 	collection := database.GetDatabase().Collection("rooms")
 
 	filter := bson.M{"_id": objectId}
-	update := bson.M{"$set": bson.M{"is_deleted": true}}
 
-	_, err = collection.DeleteOne(ctx, filter)
+	result, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while delete room"})
+		return errors.GetError(c, "Error while deleting data")
 	}
 
-    return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Successfully deleted room!"})
+    return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func ApproveCustomerReservation(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).SendString("Successfully approve customer reservation!")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	id := c.Params("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.GetError(c, "Invalid format ID")
+	}
+
+	collection := database.GetDatabase().Collection("orders")
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{
+		"$set": bson.M{
+			"is_approved": 1, 
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return errors.GetError(c, "Error while updating data")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
 }
 
 func RejectCustomerReservation(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).SendString("Successfully reject customer reservation!")
-}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-func HandleCustomerCancelation(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).SendString("Sucessfully handled customer cancelation")
+	id := c.Params("id")
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.GetError(c, "Invalid format ID")
+	}
+
+	collection := database.GetDatabase().Collection("orders")
+
+	filter := bson.M{"_id": objectId}
+	update := bson.M{
+		"$set": bson.M{
+			"is_approved": 2,
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return errors.GetError(c, "Error while updating data")
+	}
+
+	return c.Status(fiber.StatusOK).JSON(result)
 }

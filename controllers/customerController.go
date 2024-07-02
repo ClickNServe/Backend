@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/database"
+	"backend/errors"
 	"backend/models"
 	"context"
 	"time"
@@ -11,7 +12,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-
 func ReserveRoom(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -19,26 +19,19 @@ func ReserveRoom(c *fiber.Ctx) error {
 	var order models.Order
 	err := c.BodyParser(&order)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing order data"})
-	}
-
-	id := c.Params("id")
-	roomID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid id format"})
+		return errors.GetError(c, "Error while parsing data")
 	}
 
 	checkIn, err := time.Parse(time.RFC3339, order.CheckIn.Format(time.RFC3339))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing check in time"})
+		return errors.GetError(c, "Error while parsing check in time")
 	}
 
 	checkOut, err := time.Parse(time.RFC3339, order.CheckOut.Format(time.RFC3339))
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing check out time"})
+		return errors.GetError(c, "Error while parsing check out time")
 	}
 
-	order.RoomID = append(order.RoomID, roomID)
 	order.CheckIn = checkIn
 	order.CheckOut = checkOut
 	order.OrderTime = time.Now()
@@ -47,32 +40,9 @@ func ReserveRoom(c *fiber.Ctx) error {
 
 	result, err := collection.InsertOne(ctx, order)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while insert order to database"})
+		return errors.GetError(c, "Error while insert new data")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(result)
-}
-
-func CancelReservation(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	id := c.Params("id")
-	objectId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid format ID"})
-	}
-
-	collection := database.GetDatabase().Collection("orders")
-
-	filter := bson.M{"_id": objectId}
-	update := bson.M{"$set": bson.M{"is_canceled": true}}
-
-	result, err := collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed update reservation status"})
-	}
-	
 	return c.Status(fiber.StatusOK).JSON(result)
 }
 
@@ -83,20 +53,20 @@ func AddToWishlist(c *fiber.Ctx) error {
 	var wishlist models.Wishlist
 	err := c.BodyParser(&wishlist)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while parsing data"})
+		return errors.GetError(c, "Error while parsing data")
 	}
 
 	collection := database.GetDatabase().Collection("wishlists")
 
 	roomID, err := primitive.ObjectIDFromHex(wishlist.RoomID.Hex())
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid room ID"})
+		return errors.GetError(c, "Invalid format ID")
 	}
 	wishlist.RoomID = roomID
 
 	result, err := collection.InsertOne(ctx, wishlist)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while insert new document"})
+		return errors.GetError(c, "Error while insert new data")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)
@@ -109,7 +79,7 @@ func DropRoomWishlist(c *fiber.Ctx) error {
 	id := c.Params("id")
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid format ID"})
+		return errors.GetError(c, "Invalid format ID")
 	}
 
 	collection := database.GetDatabase().Collection("wishlists")
@@ -117,7 +87,7 @@ func DropRoomWishlist(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectID}
 	result, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while drop wishlist"})
+		return errors.GetError(c, "Error while deleting data")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)

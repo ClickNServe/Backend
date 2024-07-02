@@ -13,5 +13,4 @@ type Room struct {
 	PricePerNight	float64					`json:"price_per_night"`
 	Availability	bool					`json:"availability"`
 	SizeArea		float64					`json:"size_area"`
-	IsDeleted		bool					`json:"is_deleted"`
 }

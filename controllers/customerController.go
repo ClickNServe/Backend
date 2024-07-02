@@ -55,14 +55,14 @@ func AddToWishlist(c *fiber.Ctx) error {
 	if err != nil {
 		return errors.GetError(c, "Error while parsing data")
 	}
-
-	collection := database.GetDatabase().Collection("wishlists")
-
+	
 	roomID, err := primitive.ObjectIDFromHex(wishlist.RoomID.Hex())
 	if err != nil {
 		return errors.GetError(c, "Invalid format ID")
 	}
 	wishlist.RoomID = roomID
+
+	collection := database.GetDatabase().Collection("wishlists")
 
 	result, err := collection.InsertOne(ctx, wishlist)
 	if err != nil {

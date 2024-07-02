@@ -18,7 +18,6 @@ func GetAllFacilities(c *fiber.Ctx) error {
 	var facilities []models.Facility
 
 	collection := database.GetDatabase().Collection("facilities")
-
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		return errors.GetError(c, "Error while find ID")

@@ -49,7 +49,6 @@ func UpdateFacility(c *fiber.Ctx) error {
 	}
 
 	collection := database.GetDatabase().Collection("facilities")
-
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
@@ -77,12 +76,20 @@ func DeleteFacility(c *fiber.Ctx) error {
 	}
 
 	collection := database.GetDatabase().Collection("facilities")
-
 	filter := bson.M{"_id": objectId}
 
 	result, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
 		return errors.GetError(c, "Error while deleting data")
+	}
+
+	collection = database.GetDatabase().Collection("rooms")
+	filter = bson.M{"facility_id": objectId}
+	update := bson.M{"$pull": bson.M{"facility_id": objectId}}
+
+	_, err = collection.UpdateMany(ctx, filter, update)
+	if err != nil {
+		return errors.GetError(c, "Error while updating rooms")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)
@@ -125,7 +132,6 @@ func UpdateBed(c *fiber.Ctx) error {
 	}
 
 	collection := database.GetDatabase().Collection("beds")
-
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
@@ -155,10 +161,18 @@ func DeleteBed(c *fiber.Ctx) error {
 	collection := database.GetDatabase().Collection("beds")
 
 	filter := bson.M{"_id": objectId}
-	
 	result, err := collection.DeleteOne(ctx, filter)
 	if err != nil {
 		return errors.GetError(c, "Error while deleting data")
+	}
+
+	collection = database.GetDatabase().Collection("rooms")
+	filter = bson.M{"bed_id": objectId}
+	update := bson.M{"$pull": bson.M{"bed_id": objectId}}
+
+	_, err = collection.UpdateMany(ctx, filter, update)
+	if err != nil {
+		return errors.GetError(c, "Error while updating rooms")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)
@@ -201,7 +215,6 @@ func UpdateRoom(c *fiber.Ctx) error {
 	}
 
 	collection := database.GetDatabase().Collection("rooms")
-
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
@@ -236,7 +249,6 @@ func DeleteRoom(c *fiber.Ctx) error {
 	}
 
 	collection := database.GetDatabase().Collection("rooms")
-
 	filter := bson.M{"_id": objectId}
 
 	result, err := collection.DeleteOne(ctx, filter)
@@ -285,7 +297,6 @@ func RejectCustomerReservation(c *fiber.Ctx) error {
 	}
 
 	collection := database.GetDatabase().Collection("orders")
-
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{

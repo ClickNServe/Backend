@@ -18,7 +18,6 @@ func GetAllOrder(c *fiber.Ctx) error {
 	var orders []models.Order
 
 	collection := database.GetDatabase().Collection("orders")
-
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		return errors.GetError(c, "Error while find ID")

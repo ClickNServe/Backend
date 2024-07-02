@@ -19,7 +19,6 @@ func GetAllRoom(c* fiber.Ctx) error {
 	var rooms []models.Room
 
 	collection := database.GetDatabase().Collection("rooms")
-
 	cursor, err := collection.Find(context.Background(), bson.M{})
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while find ID"})
@@ -39,9 +38,7 @@ func GetAllAvailableRoom(c *fiber.Ctx) error {
 	defer cancel()
 
 	collection := database.GetDatabase().Collection("rooms")
-
 	filter := bson.M{"availability":true}
-
 	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while filtering room"})
@@ -71,7 +68,7 @@ func GetRoomDetail(c *fiber.Ctx) error {
 	var room models.Room
 
 	collection := database.GetDatabase().Collection("rooms")
-
+	
 	err = collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&room)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Error while decode room"})

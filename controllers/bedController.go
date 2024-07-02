@@ -17,7 +17,6 @@ func GetAllBed(c *fiber.Ctx) error {
 	var beds []models.Bed
 
 	collection := database.GetDatabase().Collection("beds")
-
 	cursor, err := collection.Find(ctx, &beds)
 	if err != nil {
 		return errors.GetError(c, "Error while find ID")

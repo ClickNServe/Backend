@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func GetAllBed(c *fiber.Ctx) error {
@@ -17,7 +18,7 @@ func GetAllBed(c *fiber.Ctx) error {
 	var beds []models.Bed
 
 	collection := database.GetDatabase().Collection("beds")
-	cursor, err := collection.Find(ctx, &beds)
+	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
 		return errors.GetError(c, "Error while find ID")
 	}

@@ -5,6 +5,7 @@ import (
 	"backend/errors"
 	"backend/models"
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -20,9 +21,11 @@ func GetUserWishlist(c *fiber.Ctx) error {
 		return errors.GetError(c, "Need email as parameter!")
 	}
 
+	fmt.Println(email)
+
 	collection := database.GetDatabase().Collection("wishlists")
 
-	filter := bson.M{"email": email}
+	filter := bson.M{"useremail": email}
 	
 	cursor, err := collection.Find(ctx, filter)
 	if err != nil {

@@ -52,7 +52,7 @@ func UpdateFacility(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
-			"facility_name": newFacility.FacilityName,
+			"facilityname": newFacility.FacilityName,
 			"price": newFacility.Price,
 		},
 	}
@@ -84,8 +84,8 @@ func DeleteFacility(c *fiber.Ctx) error {
 	}
 
 	collection = database.GetDatabase().Collection("rooms")
-	filter = bson.M{"facility_id": objectId}
-	update := bson.M{"$pull": bson.M{"facility_id": objectId}}
+	filter = bson.M{"facilityId": objectId}
+	update := bson.M{"$pull": bson.M{"facilityId": objectId}}
 
 	_, err = collection.UpdateMany(ctx, filter, update)
 	if err != nil {
@@ -135,7 +135,7 @@ func UpdateBed(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
-			"bed_type": bed.BedType,
+			"bedtype": bed.BedType,
 			"price": bed.Price,
 		},
 	}
@@ -167,8 +167,8 @@ func DeleteBed(c *fiber.Ctx) error {
 	}
 
 	collection = database.GetDatabase().Collection("rooms")
-	filter = bson.M{"bed_id": objectId}
-	update := bson.M{"$pull": bson.M{"bed_id": objectId}}
+	filter = bson.M{"bedId": objectId}
+	update := bson.M{"$pull": bson.M{"bedId": objectId}}
 
 	_, err = collection.UpdateMany(ctx, filter, update)
 	if err != nil {
@@ -187,6 +187,26 @@ func CreateNewRoom(c *fiber.Ctx) error {
 	if err != nil {
 		return errors.GetError(c, "Error while parsing data")
 	}
+
+	bedIDs := make([]primitive.ObjectID, len(room.BedID))
+    for i, id := range room.BedID {
+        objID, err := primitive.ObjectIDFromHex(id.Hex())
+        if err != nil {
+            return errors.GetError(c, "Invalid BedID format")
+        }
+        bedIDs[i] = objID
+    }
+    room.BedID = bedIDs
+
+	facilityIDs := make([]primitive.ObjectID, len(room.FacilityID))
+    for i, id := range room.FacilityID {
+        objID, err := primitive.ObjectIDFromHex(id.Hex())
+        if err != nil {
+            return errors.GetError(c, "Invalid FacilityID format")
+        }
+        facilityIDs[i] = objID
+    }
+    room.FacilityID = facilityIDs
 
 	collection := database.GetDatabase().Collection("rooms")
 
@@ -214,19 +234,39 @@ func UpdateRoom(c *fiber.Ctx) error {
 		return errors.GetError(c, "Error while parsing data")
 	}
 
+	bedIDs := make([]primitive.ObjectID, len(room.BedID))
+    for i, id := range room.BedID {
+        objID, err := primitive.ObjectIDFromHex(id.Hex())
+        if err != nil {
+            return errors.GetError(c, "Invalid BedID format")
+        }
+        bedIDs[i] = objID
+    }
+    room.BedID = bedIDs
+
+	facilityIDs := make([]primitive.ObjectID, len(room.FacilityID))
+    for i, id := range room.FacilityID {
+        objID, err := primitive.ObjectIDFromHex(id.Hex())
+        if err != nil {
+            return errors.GetError(c, "Invalid FacilityID format")
+        }
+        facilityIDs[i] = objID
+    }
+    room.FacilityID = facilityIDs
+
 	collection := database.GetDatabase().Collection("rooms")
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
-			"bed_id": room.BedID,
-			"facility_id": room.FacilityID,
+			"bedId": room.BedID,
+			"facilityId": room.FacilityID,
 			"picture": room.Picture,
-			"room_number": room.RoomNumber,
+			"roomnumber": room.RoomNumber,
 			"description": room.Description,
 			"floor": room.Floor,
-			"price_per_night": room.PricePerNight,
+			"pricepernight": room.PricePerNight,
 			"availability": room.Availability,
-			"size_area": room.SizeArea,
+			"sizearea": room.SizeArea,
 		},
 	}
 
@@ -274,7 +314,7 @@ func ApproveCustomerReservation(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
-			"is_approved": 1, 
+			"isapproved": 1, 
 		},
 	}
 
@@ -300,7 +340,7 @@ func RejectCustomerReservation(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectId}
 	update := bson.M{
 		"$set": bson.M{
-			"is_approved": 2,
+			"isapproved": 2,
 		},
 	}
 

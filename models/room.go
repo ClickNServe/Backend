@@ -4,13 +4,13 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Room struct {
 	RoomID			primitive.ObjectID 		`json:"id" bson:"_id,omitempty"`
-	BedID 			[]primitive.ObjectID	`json:"bed_id" bson:"bed_id,omitempty"`
-	FacilityID 		[]primitive.ObjectID	`json:"facility_id" bson:"facility_id,omitempty"`
+	BedID 			[]primitive.ObjectID	`json:"bedId" bson:"bedId,omitempty"`
+	FacilityID 		[]primitive.ObjectID	`json:"facilityId" bson:"facilityId,omitempty"`
 	Picture			string					`json:"picture"`
-	RoomNumber		int 					`json:"room_number"`
+	RoomNumber		int 					`json:"roomnumber"`
 	Description		string					`json:"description"`
 	Floor			int						`json:"floor"`
-	PricePerNight	float64					`json:"price_per_night"`
+	PricePerNight	float64					`json:"pricepernight"`
 	Availability	bool					`json:"availability"`
-	SizeArea		float64					`json:"size_area"`
+	SizeArea		float64					`json:"sizearea"`
 }

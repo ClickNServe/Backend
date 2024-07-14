@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -14,7 +15,12 @@ func main() {
 	database.ConnectDatabase()
 	defer database.DisconnectDatabase()
 
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	routes.SetUp(app)
 
-	log.Fatal(app.Listen(":9500"))
+	log.Fatal(app.Listen(":8080"))
 }

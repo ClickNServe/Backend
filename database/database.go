@@ -17,7 +17,6 @@ func GetDatabase() *mongo.Database {
 }
 
 func ConnectDatabase()  {
-	// check if there are any error, if yes, it will return not nil, if it not, it will return nil
 	err := godotenv.Load(".env") 
 	if err != nil {
 		log.Fatalf("Error loading .env file: %s", err)

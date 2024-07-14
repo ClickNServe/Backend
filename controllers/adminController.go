@@ -262,7 +262,6 @@ func UpdateRoom(c *fiber.Ctx) error {
 			"facilityId": room.FacilityID,
 			"picture": room.Picture,
 			"roomnumber": room.RoomNumber,
-			"description": room.Description,
 			"floor": room.Floor,
 			"pricepernight": room.PricePerNight,
 			"availability": room.Availability,
@@ -299,54 +298,26 @@ func DeleteRoom(c *fiber.Ctx) error {
     return c.Status(fiber.StatusOK).JSON(result)
 }
 
-func ApproveCustomerReservation(c *fiber.Ctx) error {
+func ReserveRoom(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	id := c.Params("id")
-	objectId, err := primitive.ObjectIDFromHex(id)
+	var order models.Order
+	err := c.BodyParser(&order)
 	if err != nil {
-		return errors.GetError(c, "Invalid format ID")
+		return errors.GetError(c, "Error while parsing data")
+	}
+
+	_, err = primitive.ObjectIDFromHex(order.Room.Hex())
+	if err != nil {
+		return errors.GetError(c, "Invalid roomId format")
 	}
 
 	collection := database.GetDatabase().Collection("orders")
 
-	filter := bson.M{"_id": objectId}
-	update := bson.M{
-		"$set": bson.M{
-			"isapproved": 1, 
-		},
-	}
-
-	result, err := collection.UpdateOne(ctx, filter, update)
+	result, err := collection.InsertOne(ctx, order)
 	if err != nil {
-		return errors.GetError(c, "Error while updating data")
-	}
-
-	return c.Status(fiber.StatusOK).JSON(result)
-}
-
-func RejectCustomerReservation(c *fiber.Ctx) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	id := c.Params("id")
-	objectId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return errors.GetError(c, "Invalid format ID")
-	}
-
-	collection := database.GetDatabase().Collection("orders")
-	filter := bson.M{"_id": objectId}
-	update := bson.M{
-		"$set": bson.M{
-			"isapproved": 2,
-		},
-	}
-
-	result, err := collection.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return errors.GetError(c, "Error while updating data")
+		return errors.GetError(c, "Error while insert new data")
 	}
 
 	return c.Status(fiber.StatusOK).JSON(result)

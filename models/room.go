@@ -8,7 +8,6 @@ type Room struct {
 	FacilityID 		[]primitive.ObjectID	`json:"facilityId" bson:"facilityId,omitempty"`
 	Picture			string					`json:"picture"`
 	RoomNumber		int 					`json:"roomnumber"`
-	Floor			int						`json:"floor"`
 	PricePerNight	float64					`json:"pricepernight"`
 	Availability	bool					`json:"availability"`
 	SizeArea		float64					`json:"sizearea"`

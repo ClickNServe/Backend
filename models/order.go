@@ -7,6 +7,7 @@ import (
 type Order struct {
 	OrderID			primitive.ObjectID		`json:"id" bson:"_id,omitempty"`
 	Room			primitive.ObjectID		`json:"roomId" bson:"roomId,omitempty"`
+	CustomerName	string					`json:"name"`
 	Contact			string					`json:"contact"`
 	CheckIn			string					`json:"checkIn"`
 	CheckOut		string					`json:"checkOut"`

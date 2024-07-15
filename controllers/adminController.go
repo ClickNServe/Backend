@@ -262,7 +262,6 @@ func UpdateRoom(c *fiber.Ctx) error {
 			"facilityId": room.FacilityID,
 			"picture": room.Picture,
 			"roomnumber": room.RoomNumber,
-			"floor": room.Floor,
 			"pricepernight": room.PricePerNight,
 			"availability": room.Availability,
 			"sizearea": room.SizeArea,
